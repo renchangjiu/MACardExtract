@@ -1,2 +1,2 @@
 class Config(object):
-    save_path = "D:/ma"
+    save_path = "D:/OneDrive/Picture/ma"

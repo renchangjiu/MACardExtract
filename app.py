@@ -1,5 +1,6 @@
 import csv
 import requests
+import os
 
 from config import Config
 
@@ -14,7 +15,7 @@ class App(object):
         self.failed_count = 0
 
     def run(self):
-        file = open("card.csv.txt", mode="r", encoding="utf-8")
+        file = open("card.csv", mode="r", encoding="utf-8")
         data = csv.reader(file)
         list_ = list(map(lambda v: v, data))
         for i in range(len(list_)):
@@ -24,16 +25,23 @@ class App(object):
             self.__request(row[0], row[5])
             print("\r\r")
 
-    def __request(self, card_id, card_name):
+    def __request(self, card_id: str, card_name: str):
+        card_name = card_name.replace("/", "")
+        path = App.fmt_save % (Config.save_path, card_id, card_name)
+        if os.path.exists(path):
+            self.success_count += 1
+            print(path + "\t exists, break")
+            print("total: %d, success: %d, failed: %d" % (
+                self.success_count + self.failed_count, self.success_count, self.failed_count))
+            return
         url = App.fmt_url % card_id
         r = requests.get(url)
         code = r.status_code
         if code != 404:
-            path = App.fmt_save % (Config.save_path, card_id, card_name)
             image = open(path, mode="wb")
             image.write(r.content)
             self.success_count += 1
-            print(image.name)
+            print(path)
         else:
             self.failed_count += 1
             print("404: " + url)
