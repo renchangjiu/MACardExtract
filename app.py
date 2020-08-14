@@ -72,6 +72,31 @@ class App(object):
         f.writelines(copy)
         f.close()
 
+    def check404(self):
+        f = open(self.c404_path, "r")
+        ids = list(map(lambda v: v.strip(), f.readlines()))
+        c404s = []
+        cards = []
+        for cid in ids:
+            url = App.fmt_url % cid
+            r = requests.get(url)
+            if r.status_code == 404:
+                c404s.append(cid)
+                print("404:\t" + cid)
+            else:
+                cards.append(cid)
+                print("none 404:\t" + cid)
+        f.close()
+        print()
+
+    def recheck404(self):
+        f404 = open(self.c404_path, "r")
+        ids404 = list(map(lambda v: v.strip(), f404.readlines()))
+        f = open("card.csv", mode="r", encoding="utf-8")
+        data = csv.reader(f)
+        list_ = list(map(lambda v: v, data))
+
 
 if __name__ == "__main__":
-    App().run()
+    # App().run()
+    App().check404()
